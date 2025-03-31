@@ -1,0 +1,15 @@
+/* Обмеження розміру SVG */
+img {
+  max-width: 100%;  /* Щоб SVG не виходив за межі контейнера */
+  height: auto;     /* Зберігає пропорції */
+  display: block;   /* Видаляє зайві відступи */
+  margin: auto;     /* Центрує зображення */
+}
+
+/* Якщо SVG вставлений як <svg> */
+svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: auto;
+}
