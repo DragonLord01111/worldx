@@ -2,14 +2,11 @@ const img = document.getElementById("image");
 const container = document.querySelector(".container");
 
 let scale = 1;
-let isDragging = false;
-let startX, startY, imgX = 0, imgY = 0;
-let lastScale = 1;
-let velocityX = 0, velocityY = 0;
-let momentumActive = false;
+let imgX = 0, imgY = 0;
 
 const MIN_SCALE = 0.5;
 const MAX_SCALE = 8;
+const MOVE_STEP = 50;
 
 // Оновлення стилю трансформації
 function updateTransform(smooth = false) {
@@ -25,7 +22,6 @@ container.addEventListener("wheel", (event) => {
     let zoomFactor = event.deltaY < 0 ? 1.1 : 0.9;
     let newScale = scale * zoomFactor;
 
-    // Обмеження масштабу
     if (newScale < MIN_SCALE || newScale > MAX_SCALE) return;
 
     let mouseX = event.clientX - rect.left;
@@ -38,69 +34,25 @@ container.addEventListener("wheel", (event) => {
     updateTransform(true);
 });
 
-// Початок переміщення
-container.addEventListener("mousedown", (event) => {
-    if (event.button !== 0) return;
-
-    isDragging = true;
-    momentumActive = false;
-    startX = event.clientX - imgX;
-    startY = event.clientY - imgY;
-    velocityX = 0;
-    velocityY = 0;
-    img.style.cursor = "grabbing";
-});
-
-// Переміщення
-container.addEventListener("mousemove", (event) => {
-    if (!isDragging) return;
-
-    let newX = event.clientX - startX;
-    let newY = event.clientY - startY;
-
-    velocityX = newX - imgX;
-    velocityY = newY - imgY;
-
-    imgX = newX;
-    imgY = newY;
-
-    updateTransform();
-});
-
-// Завершення перетягування (додаємо інерцію)
-container.addEventListener("mouseup", () => {
-    isDragging = false;
-    img.style.cursor = "grab";
-
-    // Інерція руху після відпускання миші
-    if (Math.abs(velocityX) > 1 || Math.abs(velocityY) > 1) {
-        momentumActive = true;
-        requestAnimationFrame(applyMomentum);
+// Клавіші для переміщення
+document.addEventListener("keydown", (event) => {
+    switch (event.key) {
+        case "ArrowUp":
+            imgY += MOVE_STEP;
+            break;
+        case "ArrowDown":
+            imgY -= MOVE_STEP;
+            break;
+        case "ArrowLeft":
+            imgX += MOVE_STEP;
+            break;
+        case "ArrowRight":
+            imgX -= MOVE_STEP;
+            break;
+        default:
+            return;
     }
-});
-
-// Інерційний рух (плавне уповільнення)
-function applyMomentum() {
-    if (!momentumActive) return;
-
-    imgX += velocityX;
-    imgY += velocityY;
-
-    velocityX *= 0.95;
-    velocityY *= 0.95;
-
-    if (Math.abs(velocityX) < 0.5 && Math.abs(velocityY) < 0.5) {
-        momentumActive = false;
-    }
-
-    updateTransform();
-    if (momentumActive) requestAnimationFrame(applyMomentum);
-}
-
-// Запобігання залипанню при виході за межі вікна
-document.addEventListener("mouseleave", () => {
-    isDragging = false;
-    img.style.cursor = "grab";
+    updateTransform(true);
 });
 
 // Центрування при завантаженні
